@@ -6,15 +6,9 @@ import logging
 from connect_cache import return_sqlite_conn
 
 
-def crawl_data_to_insert():
-    url = "https://www.espncricinfo.com/series/india-in-west-indies-2023-1381201/match-schedule-fixtures-and-results"
-    response = requests.get(url)
-    if response.status_code != 200:
-        # TODO: throw exception then exit
-        logging.error("Failed to retrieve the website content.")
-
+def scraping_html(response):
     data_to_cache = []
-    # 경험 없고 프론트 지식 너무 없어서 여기가 가장 난해
+
     # TODO: nested div-class 에서 find, select 다 안 먹히는 경우 대체 어케해야 하는지. 원했던 데이터 더 갖고 오기
     soup = BeautifulSoup(response.text, 'html.parser')
     to_be_parsed = soup.select_one("#main-container > div > div > div > div > div > div > div")
@@ -27,13 +21,26 @@ def crawl_data_to_insert():
         if game_date.startswith('Today'):
             current_timestamp = datetime.date.today().strftime('%Y-%m-%d')
             input_string = "{} {}".format(current_timestamp, game_date[7:])
-            data_to_cache.append((" ".join(game_schedules), datetime.datetime.strptime(input_string, "%Y-%m-%d %H:%M %p")))
+            data_to_cache.append(
+                (" ".join(game_schedules), datetime.datetime.strptime(input_string, "%Y-%m-%d %H:%M %p")))
         elif game_date.startswith('Tomorrow'):
             timestamp = (datetime.date.today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
             input_string = "{} {}".format(timestamp, game_date[10:])
-            data_to_cache.append((" ".join(game_schedules), datetime.datetime.strptime(input_string, "%Y-%m-%d %H:%M %p")))
+            data_to_cache.append(
+                (" ".join(game_schedules), datetime.datetime.strptime(input_string, "%Y-%m-%d %H:%M %p")))
+    return []
 
-    cache_to_sqlite3(data_to_cache)
+
+
+def crawl_data_to_insert():
+    url = "https://www.espncricinfo.com/series/india-in-west-indies-2023-1381201/match-schedule-fixtures-and-results"
+    response = requests.get(url)
+    if response.status_code != 200:
+        # TODO: throw exception then exit
+        logging.error("Failed to retrieve the website content.")
+
+    # data_to_cache = []
+    cache_to_sqlite3(scraping_html(response))
 
 
 def cache_to_sqlite3(data_to_cache):

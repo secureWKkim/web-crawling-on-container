@@ -1,7 +1,6 @@
 FROM python:3.11
 WORKDIR /app
 COPY ./main /app/main
-COPY ./test /app/test
 COPY ./requirements.txt /app
 #WORKDIR /main
 #RUN mkdir /main/logs

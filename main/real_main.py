@@ -4,6 +4,7 @@ from crawling import crawl_data_to_insert
 from write_db import store_crawled_data_psql
 from user_interaction import UserInteraction as UI
 from logger import setLogOptions
+import tracemalloc
 
 my_scheduler = Scheduler()
 
@@ -14,6 +15,7 @@ def initialize_scheduler():
 
 
 if __name__ == '__main__':
+    tracemalloc.start()
     setLogOptions()
     initialize_scheduler()
     while True:
@@ -27,3 +29,8 @@ if __name__ == '__main__':
             Tell me any option anytime you want.
             Input Option: """)
         UI(my_scheduler)
+        snapshot1 = tracemalloc.take_snapshot()
+        stats = snapshot1.statistics("lineno")
+        for stat in stats:
+            print(stat, stat.traceback.format())
+    tracemalloc.stop()

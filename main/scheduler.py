@@ -13,8 +13,8 @@ class Scheduler:
     def __init__(self):
         self.sched = BackgroundScheduler()
         self.sched.start()
-        self.crawling_interval = 10
-        self.db_write_interval = 10
+        self.crawling_interval = 60
+        self.db_write_interval = 60
         # self.pause_job = {'1': False, '2': False}
 
     def shutdown(self):  # thread join option is called!
